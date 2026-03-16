@@ -3,9 +3,11 @@ services:
     name: tienda-telas
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app  # <-- Cambiado de quincorn a gunicorn
+    startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.14.3
       - key: SECRET_KEY
         generateValue: true
+      - key: FLASK_ENV
+        value: production
