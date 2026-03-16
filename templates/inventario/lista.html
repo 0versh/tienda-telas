@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="fas fa-boxes"></i> Inventario de Rollos</h1>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Rollo</th>
+                        <th>Tela</th>
+                        <th>Color</th>
+                        <th>Metros</th>
+                        <th>Estado</th>
+                        <th>Ubicación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rollo in rollos %}
+                    <tr>
+                        <td>{{ rollo.numero_rollo }}</td>
+                        <td>{{ rollo.nombre_tela }} ({{ rollo.codigo_tela }})</td>
+                        <td>
+                            {% if rollo.nombre_color %}
+                                {% set color_class = 'color-badge-default' %}
+                                {% if rollo.nombre_color|lower == 'blanco' %}
+                                    <span class="color-badge color-badge-blanco">Blanco</span>
+                                {% elif rollo.nombre_color|lower == 'negro' %}
+                                    <span class="color-badge color-badge-negro">Negro</span>
+                                {% elif rollo.nombre_color|lower == 'rojo' %}
+                                    <span class="color-badge color-badge-rojo">Rojo</span>
+                                {% elif rollo.nombre_color|lower == 'azul' %}
+                                    <span class="color-badge color-badge-azul">Azul</span>
+                                {% elif rollo.nombre_color|lower == 'verde' %}
+                                    <span class="color-badge color-badge-verde">Verde</span>
+                                {% elif rollo.nombre_color|lower == 'amarillo' %}
+                                    <span class="color-badge color-badge-amarillo">Amarillo</span>
+                                {% elif rollo.nombre_color|lower == 'gris' %}
+                                    <span class="color-badge color-badge-gris">Gris</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ rollo.nombre_color }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">Sin color</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ "%.2f"|format(rollo.metros_actuales) }} m</td>
+                        <td>
+                            {% if rollo.estado == 'completo' %}
+                                <span class="badge bg-success">Completo</span>
+                            {% elif rollo.estado == 'iniciado' %}
+                                <span class="badge bg-warning">Iniciado</span>
+                            {% elif rollo.estado == 'agotado' %}
+                                <span class="badge bg-danger">Agotado</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ rollo.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ rollo.ubicacion_estante or 'Sin ubicación' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No hay rollos en inventario
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

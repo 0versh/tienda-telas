@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Producto{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="fas fa-edit"></i> Editar Producto</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('productos.lista') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="codigo" class="form-label">Código *</label>
+                    <input type="text" class="form-control" id="codigo" name="codigo" 
+                           value="{{ tela.codigo_tela }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nombre" class="form-label">Nombre *</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" 
+                           value="{{ tela.nombre_tela }}" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_tipo" class="form-label">Tipo de Tela *</label>
+                    <select class="form-select" id="id_tipo" name="id_tipo" required>
+                        <option value="">Seleccione...</option>
+                        {% for tipo in tipos %}
+                        <option value="{{ tipo.id_tipo }}" {% if tipo.id_tipo == tela.id_tipo %}selected{% endif %}>
+                            {{ tipo.nombre_tipo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_proveedor" class="form-label">Proveedor *</label>
+                    <select class="form-select" id="id_proveedor" name="id_proveedor" required>
+                        <option value="">Seleccione...</option>
+                        {% for proveedor in proveedores %}
+                        <option value="{{ proveedor.id_proveedor }}" {% if proveedor.id_proveedor == tela.id_proveedor %}selected{% endif %}>
+                            {{ proveedor.nombre_proveedor }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="composicion" class="form-label">Composición</label>
+                <input type="text" class="form-control" id="composicion" name="composicion" 
+                       value="{{ tela.composicion or '' }}">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="ancho" class="form-label">Ancho (m)</label>
+                    <input type="number" step="0.01" class="form-control" id="ancho" name="ancho" 
+                           value="{{ tela.ancho or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="peso_gramaje" class="form-label">Peso (gr/m²)</label>
+                    <input type="number" step="0.01" class="form-control" id="peso_gramaje" name="peso_gramaje" 
+                           value="{{ tela.peso_gramaje or '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="precio_compra" class="form-label">Precio Compra *</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_compra" name="precio_compra" 
+                           value="{{ tela.precio_compra_metro }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="precio_venta" class="form-label">Precio Venta *</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_venta" name="precio_venta" 
+                           value="{{ tela.precio_venta_metro }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="stock_minimo" class="form-label">Stock Mínimo *</label>
+                    <input type="number" step="0.01" class="form-control" id="stock_minimo" name="stock_minimo" 
+                           value="{{ tela.stock_minimo_metros }}" required>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Actualizar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

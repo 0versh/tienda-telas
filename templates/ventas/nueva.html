@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Venta{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="fas fa-cash-register"></i> Nueva Venta</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('ventas.lista') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<!-- Datos de rollos ocultos para JavaScript -->
+<textarea id="rollos-data" style="display: none;">{{ rollos|tojson }}</textarea>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Agregar Cortes</h5>
+            </div>
+            <div class="card-body">
+                <form id="corteForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_rollo" class="form-label">Seleccionar Rollo</label>
+                            <select class="form-select" id="id_rollo" required>
+                                <option value="">Seleccione un rollo...</option>
+                                {% for rollo in rollos %}
+                                <option value="{{ rollo.id_rollo }}">
+                                    {{ rollo.nombre_tela }} - Rollo {{ rollo.numero_rollo }} 
+                                    ({{ rollo.metros_actuales }} m disponibles)
+                                    {% if rollo.nombre_color %} - {{ rollo.nombre_color }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="metros" class="form-label">Metros a cortar</label>
+                            <input type="number" step="0.01" min="0.01" class="form-control" id="metros" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-primary d-block" id="agregarCorte">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Detalle de la Venta</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tablaCortes">
+                        <thead>
+                            <tr>
+                                <th>Tela</th>
+                                <th>Rollo</th>
+                                <th>Color</th>
+                                <th>Metros</th>
+                                <th>Precio/m</th>
+                                <th>Subtotal</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTabla"></tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-end">Totales:</th>
+                                <th id="totalMetros">0.00 m</th>
+                                <th id="totalPagar">$0.00</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Finalizar Venta</h5>
+            </div>
+            <div class="card-body">
+                <form id="ventaForm" method="POST">
+                    <input type="hidden" name="datos_venta" id="datos_venta">
+                    <input type="hidden" name="cortes" id="cortes">
+
+                    <div class="mb-3">
+                        <label for="metodo_pago" class="form-label">Método de Pago</label>
+                        <select class="form-select" id="metodo_pago" name="metodo_pago" required>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="mixto">Mixto</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descuento" class="form-label">Descuento ($)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" id="descuento" value="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Resumen</label>
+                        <div class="border p-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal:</span>
+                                <span id="resumenSubtotal">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Descuento:</span>
+                                <span id="resumenDescuento">$0.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Total:</span>
+                                <span id="resumenTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-success w-100" id="finalizarVenta" disabled>
+                        <i class="fas fa-check"></i> Finalizar Venta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/ventas.js') }}"></script>
+{% endblock %}

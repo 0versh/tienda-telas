@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="fas fa-home"></i> Dashboard</h1>
+        <p class="text-muted">Bienvenido al sistema de gestión de tienda de telas</p>
+    </div>
+</div>
+
+<!-- Tarjetas de acceso rápido a los módulos -->
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-cut fa-4x mb-3"></i>
+                <h3 class="card-title">Productos</h3>
+                <p class="card-text">Gestiona el catálogo de telas</p>
+                <a href="{{ url_for('productos.lista') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-right"></i> Ingresar
+                </a>
+            </div>
+        </div>
+    </div>
+
+     <div class="col-md-4 mb-4">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-boxes fa-4x mb-3"></i>
+                <h3 class="card-title">Inventario</h3>
+                <p class="card-text">Control de rollos y existencias</p>
+                <a href="{{ url_for('inventario.lista') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-right"></i> Ingresar
+                </a>
+            </div>
+        </div>
+    </div>
+
+     <div class="col-md-4 mb-4">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-4x mb-3"></i>
+                <h3 class="card-title">Ventas</h3>
+                <p class="card-text">Registra ventas y cortes</p>
+                <a href="{{ url_for('ventas.lista') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-right"></i> Ingresar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones rápidas adicionales -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('productos.nuevo') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus"></i> Nuevo Producto
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('ventas.nueva') }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-cash-register"></i> Nueva Venta
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('inventario.lista') }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-boxes"></i> Ver Inventario
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('ventas.lista') }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-history"></i> Ver Ventas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

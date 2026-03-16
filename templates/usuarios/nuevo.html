@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Usuario{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="fas fa-user-plus"></i> Nuevo Usuario</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('usuarios.lista') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nombre_usuario" class="form-label">Nombre de Usuario *</label>
+                    <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nombre_completo" class="form-label">Nombre Completo *</label>
+                    <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="email" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="contraseña" class="form-label">Contraseña *</label>
+                    <input type="password" class="form-control" id="contraseña" name="contraseña" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="confirmar_contraseña" class="form-label">Confirmar Contraseña *</label>
+                    <input type="password" class="form-control" id="confirmar_contraseña" name="confirmar_contraseña" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="rol" class="form-label">Rol *</label>
+                <select class="form-select" id="rol" name="rol" required>
+                    <option value="vendedor">Vendedor</option>
+                    <option value="admin">Administrador</option>
+                    <option value="supervisor">Supervisor</option>
+                </select>
+            </div>
+            
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

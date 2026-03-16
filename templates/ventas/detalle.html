@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Venta #{{ venta.id_venta }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="fas fa-receipt"></i> Venta #{{ venta.id_venta }}</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('ventas.lista') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Información de la Venta</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <th>Fecha:</th>
+                        <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Vendedor:</th>
+                        <td>{{ venta.nombre_usuario }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cliente:</th>
+                        <td>{{ venta.nombre_cliente or 'Consumidor final' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Método de Pago:</th>
+                        <td><span class="badge bg-info">{{ venta.metodo_pago }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Estado:</th>
+                        <td><span class="badge bg-success">{{ venta.estado }}</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Resumen</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <th>Subtotal:</th>
+                        <td>${{ "%.2f"|format(venta.subtotal) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Descuento:</th>
+                        <td>${{ "%.2f"|format(venta.descuento) }}</td>
+                    </tr>
+                    <tr>
+                        <th>IVA:</th>
+                        <td>${{ "%.2f"|format(venta.iva) }}</td>
+                    </tr>
+                    <tr>
+                        <th class="h5">Total:</th>
+                        <td class="h5">${{ "%.2f"|format(venta.total_pagar) }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Detalle de Cortes</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tela</th>
+                        <th>Rollo</th>
+                        <th>Metros</th>
+                        <th>Precio/m</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detalle in venta.detalles %}
+                    <tr>
+                        <td>{{ detalle.nombre_tela }} ({{ detalle.codigo_tela }})</td>
+                        <td>{{ detalle.numero_rollo or 'N/A' }}</td>
+                        <td>{{ "%.2f"|format(detalle.metros_cortados) }} m</td>
+                        <td>${{ "%.2f"|format(detalle.precio_metro_momento) }}</td>
+                        <td>${{ "%.2f"|format(detalle.subtotal) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">Total Metros:</th>
+                        <th>{{ "%.2f"|format(venta.total_metros) }} m</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
