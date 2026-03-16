@@ -1,5 +1,6 @@
 # routes/productos_routes.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -8,12 +9,14 @@ from models.producto_model import ProductoModel
 productos_bp = Blueprint('productos', __name__, url_prefix='/productos')
 
 @productos_bp.route('/')
+@login_required
 def lista():
     """Lista todos los productos"""
     telas = ProductoModel.obtener_todos()
     return render_template('productos/lista.html', telas=telas)
 
 @productos_bp.route('/nuevo', methods=['GET', 'POST'])
+@login_required
 def nuevo():
     """Agrega un nuevo producto"""
     if request.method == 'POST':
@@ -42,6 +45,7 @@ def nuevo():
     return render_template('productos/agregar.html', tipos=tipos, proveedores=proveedores)
 
 @productos_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
 def editar(id):
     """Edita un producto existente"""
     if request.method == 'POST':
@@ -75,6 +79,7 @@ def editar(id):
     return render_template('productos/editar.html', tela=tela, tipos=tipos, proveedores=proveedores)
 
 @productos_bp.route('/eliminar/<int:id>')
+@login_required
 def eliminar(id):
     """Elimina (desactiva) un producto"""
     try:

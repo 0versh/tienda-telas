@@ -3,142 +3,441 @@
 {% block title %}Nueva Venta{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row mb-4 fade-in">
     <div class="col">
         <h1><i class="fas fa-cash-register"></i> Nueva Venta</h1>
     </div>
     <div class="col text-end">
-        <a href="{{ url_for('ventas.lista') }}" class="btn btn-secondary">
+        <a href="{{ url_for('ventas.lista') }}" class="btn btn-glass">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
     </div>
 </div>
 
-<!-- Datos de rollos ocultos para JavaScript -->
+<!-- Datos de rollos (JSON) -->
 <textarea id="rollos-data" style="display: none;">{{ rollos|tojson }}</textarea>
 
 <div class="row">
+    <!-- Panel izquierdo -->
     <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Agregar Cortes</h5>
-            </div>
-            <div class="card-body">
-                <form id="corteForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="id_rollo" class="form-label">Seleccionar Rollo</label>
-                            <select class="form-select" id="id_rollo" required>
-                                <option value="">Seleccione un rollo...</option>
-                                {% for rollo in rollos %}
-                                <option value="{{ rollo.id_rollo }}">
-                                    {{ rollo.nombre_tela }} - Rollo {{ rollo.numero_rollo }} 
-                                    ({{ rollo.metros_actuales }} m disponibles)
-                                    {% if rollo.nombre_color %} - {{ rollo.nombre_color }}{% endif %}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="metros" class="form-label">Metros a cortar</label>
-                            <input type="number" step="0.01" min="0.01" class="form-control" id="metros" required>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">&nbsp;</label>
-                            <button type="button" class="btn btn-primary d-block" id="agregarCorte">
-                                <i class="fas fa-plus"></i> Agregar
-                            </button>
-                        </div>
-                    </div>
-                </form>
+        <div class="glass-soft p-4 mb-4">
+            <h5 class="mb-3"><i class="fas fa-cut text-primary"></i> Agregar Cortes</h5>
+            <div class="row g-4">
+                <!-- Campo Seleccionar Rollo -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold mb-2">
+                        <i class="fas fa-tag me-1 text-primary"></i> Rollo
+                    </label>
+                    <select class="form-glass" id="selectRollo">
+                        <option value="" disabled selected>🔍 Seleccione un rollo...</option>
+                        {% for rollo in rollos %}
+                        <option value="{{ rollo.id_rollo }}" 
+                                data-id_tela="{{ rollo.id_tela }}"
+                                data-nombre="{{ rollo.nombre_tela }}"
+                                data-codigo="{{ rollo.codigo_tela }}"
+                                data-numero="{{ rollo.numero_rollo }}"
+                                data-color="{{ rollo.nombre_color or 'Sin color' }}"
+                                data-precio="{{ rollo.precio_venta_metro }}"
+                                data-metros="{{ rollo.metros_actuales }}">
+                            🧵 {{ rollo.nombre_tela }} | Rollo {{ rollo.numero_rollo }} | 📏 {{ rollo.metros_actuales }} m
+                            {% if rollo.nombre_color %} | 🎨 {{ rollo.nombre_color }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Campo Metros -->
+                <div class="col-md-3">
+                        <label class="form-label fw-semibold mb-2">
+                          <i class="fas fa-ruler me-1 text-primary"></i> Metros </label>
+                 <div class="input-group">
+                        <input type="number" step="0.01" class="form-glass" id="metros" placeholder="0.00">
+                 </div>
+                    <small class="text-muted mt-1 d-block" id="metrosHint">Ingrese la cantidad a cortar</small>
+                </div>
+                
+                <!-- Botón Agregar -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-glass w-100" id="btnAgregar">
+                        <i class="fas fa-plus-circle me-2"></i> Agregar
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Detalle de la Venta</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="tablaCortes">
-                        <thead>
-                            <tr>
-                                <th>Tela</th>
-                                <th>Rollo</th>
-                                <th>Color</th>
-                                <th>Metros</th>
-                                <th>Precio/m</th>
-                                <th>Subtotal</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoTabla"></tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="4" class="text-end">Totales:</th>
-                                <th id="totalMetros">0.00 m</th>
-                                <th id="totalPagar">$0.00</th>
-                                <th></th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+        <div class="glass-soft p-4">
+            <h5 class="mb-3"><i class="fas fa-list text-info"></i> Detalle de la Venta</h5>
+                <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table class="table table-glass" style="min-width: 600px; white-space: nowrap;">
+                    <thead>
+                        <tr class="text-center">
+                            <th style="min-width: 150px;">Tela</th>
+                            <th style="min-width: 100px;">Rollo</th>
+                            <th style="min-width: 100px;">Color</th>
+                            <th style="min-width: 80px;">Metros</th>
+                            <th style="min-width: 90px;">Precio/m</th>
+                            <th style="min-width: 100px;">Subtotal</th>
+                            <th style="min-width: 60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCortes">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-box-open fa-2x mb-2 d-block opacity-50"></i>
+                                No hay cortes agregados
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="4" class="text-end">Total:</td>
+                            <td id="totalMetros">0.00 m</td>
+                            <td id="totalSubtotal">$0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         </div>
     </div>
 
+    <!-- Panel derecho -->
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Finalizar Venta</h5>
-            </div>
-            <div class="card-body">
-                <form id="ventaForm" method="POST">
-                    <input type="hidden" name="datos_venta" id="datos_venta">
-                    <input type="hidden" name="cortes" id="cortes">
-
-                    <div class="mb-3">
-                        <label for="metodo_pago" class="form-label">Método de Pago</label>
-                        <select class="form-select" id="metodo_pago" name="metodo_pago" required>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
-                            <option value="transferencia">Transferencia</option>
-                            <option value="mixto">Mixto</option>
-                        </select>
+        <div class="glass-soft p-4">
+            <h5 class="mb-3"><i class="fas fa-check-circle text-success"></i> Finalizar Venta</h5>
+            <form id="ventaForm" method="POST">
+                <input type="hidden" name="datos_venta" id="datosVenta">
+                <input type="hidden" name="cortes" id="cortesData">
+                
+                <div class="mb-4">
+                    <label class="form-label fw-semibold mb-2">
+                        <i class="fas fa-money-bill-wave me-1 text-primary"></i> Método de Pago
+                    </label>
+                    <select class="form-glass" id="metodoPago" required>
+                        <option value="efectivo">💵 Efectivo</option>
+                        <option value="tarjeta">💳 Tarjeta</option>
+                        <option value="transferencia">🏦 Transferencia</option>
+                        <option value="mixto">🔄 Mixto</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-semibold mb-2">
+                        <i class="fas fa-percent me-1 text-primary"></i> Descuento
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">$</span>
+                        <input type="number" step="0.01" class="form-glass border-start-0" id="descuento" value="0">
                     </div>
-
-                    <div class="mb-3">
-                        <label for="descuento" class="form-label">Descuento ($)</label>
-                        <input type="number" step="0.01" min="0" class="form-control" id="descuento" value="0">
+                    <small class="text-muted mt-1 d-block">Descuento aplicado al subtotal</small>
+                </div>
+                
+                <div class="dashboard-card p-3 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal:</span>
+                        <span id="resSubtotal" class="fw-semibold">$0.00</span>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Resumen</label>
-                        <div class="border p-3">
-                            <div class="d-flex justify-content-between">
-                                <span>Subtotal:</span>
-                                <span id="resumenSubtotal">$0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Descuento:</span>
-                                <span id="resumenDescuento">$0.00</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between fw-bold">
-                                <span>Total:</span>
-                                <span id="resumenTotal">$0.00</span>
-                            </div>
-                        </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Descuento:</span>
+                        <span id="resDescuento" class="fw-semibold text-warning">$0.00</span>
                     </div>
-
-                    <button type="button" class="btn btn-success w-100" id="finalizarVenta" disabled>
-                        <i class="fas fa-check"></i> Finalizar Venta
-                    </button>
-                </form>
-            </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span class="fs-5">Total a Pagar:</span>
+                        <span id="resTotal" class="fs-4 text-success">$0.00</span>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-glass w-100 py-2" id="btnFinalizar" disabled>
+                    <i class="fas fa-check-circle me-2"></i> Finalizar Venta
+                </button>
+            </form>
         </div>
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/ventas.js') }}"></script>
+<style>
+
+/* Estilos específicos para formularios glass */
+.form-glass {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--glass-soft);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-glass:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    outline: none;
+}
+
+.form-glass option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Input group personalizado */
+.input-group .form-glass {
+    border-radius: 12px 0 0 12px;
+}
+
+.input-group .input-group-text {
+    background: var(--glass-soft);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+}
+
+/* Select personalizado */
+select.form-glass {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+}
+
+/* Placeholder styling */
+.form-glass::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* Botón mejorado */
+.btn-glass {
+    background: var(--glass-strong);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-glass:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--accent-glow);
+}
+
+.btn-glass:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Tabla mejorada */
+.table-glass {
+    margin-bottom: 0;
+}
+
+.table-glass th {
+    font-weight: 600;
+    border-bottom-width: 2px;
+}
+
+.table-glass td {
+    vertical-align: middle;
+}
+</style>
+
+<script>
+// Variables
+let cortes = [];
+
+// Elementos DOM
+const selectRollo = document.getElementById('selectRollo');
+const metrosInput = document.getElementById('metros');
+const btnAgregar = document.getElementById('btnAgregar');
+const btnFinalizar = document.getElementById('btnFinalizar');
+const tablaCortes = document.getElementById('tablaCortes');
+const totalMetrosSpan = document.getElementById('totalMetros');
+const totalSubtotalSpan = document.getElementById('totalSubtotal');
+const resSubtotal = document.getElementById('resSubtotal');
+const resDescuento = document.getElementById('resDescuento');
+const resTotal = document.getElementById('resTotal');
+const descuentoInput = document.getElementById('descuento');
+const metodoPago = document.getElementById('metodoPago');
+const metrosHint = document.getElementById('metrosHint');
+
+// Función para actualizar la tabla
+function actualizarTabla() {
+    if (cortes.length === 0) {
+        tablaCortes.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-box-open fa-2x mb-2 d-block opacity-50"></i>No hay cortes agregados</td></tr>';
+        totalMetrosSpan.textContent = '0.00 m';
+        totalSubtotalSpan.textContent = '$0.00';
+        btnFinalizar.disabled = true;
+        return;
+    }
+    
+    let html = '';
+    let totalMetros = 0;
+    let totalSubtotal = 0;
+    
+    cortes.forEach((corte, index) => {
+        const subtotal = corte.metros * corte.precio;
+        totalMetros += corte.metros;
+        totalSubtotal += subtotal;
+        
+        html += `
+            <tr>
+                <td style="white-space: normal; word-break: break-word;">
+                    <i class="fas fa-tshirt me-2 text-primary"></i>
+                    <strong>${corte.nombre}</strong>
+                    <br><small class="text-muted">${corte.codigo}</small>
+                </td>
+                <td class="text-center">
+                    <span class="badge-glass d-inline-block px-2 py-1" style="font-size: 0.8rem;">
+                        ${corte.numero}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <span class="badge-glass d-inline-block px-2 py-1" style="font-size: 0.8rem; background-color: ${corte.color === 'Sin color' ? '#6c757d20' : '#0d6efd20'};">
+                        ${corte.color}
+                    </span>
+                </td>
+                <td class="text-center fw-semibold">
+                    ${corte.metros.toFixed(2)} <small class="text-muted">m</small>
+                </td>
+                <td class="text-center">$${corte.precio.toFixed(2)}</td>
+                <td class="text-center fw-bold text-primary">$${subtotal.toFixed(2)}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-glass text-danger p-1" onclick="eliminarCorte(${index})" style="font-size: 0.8rem;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tablaCortes.innerHTML = html;
+    totalMetrosSpan.textContent = totalMetros.toFixed(2) + ' m';
+    totalSubtotalSpan.textContent = '$' + totalSubtotal.toFixed(2);
+    
+    // Actualizar resumen
+    const descuento = parseFloat(descuentoInput.value) || 0;
+    const totalFinal = totalSubtotal - descuento;
+    
+    resSubtotal.textContent = '$' + totalSubtotal.toFixed(2);
+    resDescuento.textContent = '$' + descuento.toFixed(2);
+    resTotal.textContent = '$' + totalFinal.toFixed(2);
+    
+    btnFinalizar.disabled = false;
+}
+
+// Eliminar corte
+window.eliminarCorte = function(index) {
+    cortes.splice(index, 1);
+    actualizarTabla();
+};
+
+// Actualizar hint al seleccionar rollo
+selectRollo.addEventListener('change', function() {
+    const option = this.options[this.selectedIndex];
+    const metrosDisponibles = option.getAttribute('data-metros');
+    if (metrosDisponibles && metrosHint) {
+        metrosHint.innerHTML = `📏 Disponibles: ${metrosDisponibles} m | Máximo a cortar: ${metrosDisponibles} m`;
+        metrosInput.max = metrosDisponibles;
+    } else {
+        metrosHint.innerHTML = 'Ingrese la cantidad a cortar';
+        metrosInput.removeAttribute('max');
+    }
+});
+
+// Agregar corte
+btnAgregar.onclick = function() {
+    const option = selectRollo.options[selectRollo.selectedIndex];
+    const idRollo = selectRollo.value;
+    const idTela = option.getAttribute('data-id_tela');
+    const nombre = option.getAttribute('data-nombre');
+    const codigo = option.getAttribute('data-codigo');
+    const numero = option.getAttribute('data-numero');
+    const color = option.getAttribute('data-color');
+    const precio = parseFloat(option.getAttribute('data-precio'));
+    const metros = parseFloat(metrosInput.value);
+    const metrosDisponibles = parseFloat(option.getAttribute('data-metros'));
+    
+    if (!idRollo) {
+        alert('❌ Seleccione un rollo');
+        return;
+    }
+    
+    if (!idTela || idTela === 'null') {
+        alert('❌ Error: No se pudo obtener el ID de la tela');
+        return;
+    }
+    
+    if (!metros || metros <= 0) {
+        alert('❌ Ingrese metros válidos (mayor a 0)');
+        return;
+    }
+    
+    if (metros > metrosDisponibles) {
+        alert(`❌ Solo hay ${metrosDisponibles} metros disponibles`);
+        return;
+    }
+    
+    if (cortes.some(c => c.id_rollo === parseInt(idRollo))) {
+        alert('⚠️ Este rollo ya está en la lista');
+        return;
+    }
+    
+    cortes.push({
+        id_rollo: parseInt(idRollo),
+        id_tela: parseInt(idTela),
+        nombre: nombre,
+        codigo: codigo,
+        numero: numero,
+        color: color,
+        metros: metros,
+        precio: precio
+    });
+    
+    actualizarTabla();
+    
+    // Limpiar
+    selectRollo.value = '';
+    metrosInput.value = '';
+    metrosHint.innerHTML = 'Ingrese la cantidad a cortar';
+};
+
+// Descuento
+descuentoInput.oninput = actualizarTabla;
+
+// Finalizar venta
+btnFinalizar.onclick = function() {
+    if (cortes.length === 0) {
+        alert('❌ Agregue al menos un corte');
+        return;
+    }
+    
+    const subtotal = cortes.reduce((sum, c) => sum + (c.metros * c.precio), 0);
+    const descuento = parseFloat(descuentoInput.value) || 0;
+    
+    const datosVenta = {
+        total_metros: cortes.reduce((sum, c) => sum + c.metros, 0),
+        subtotal: subtotal,
+        descuento: descuento,
+        iva: 0,
+        total_pagar: subtotal - descuento,
+        metodo_pago: metodoPago.value
+    };
+    
+    document.getElementById('datosVenta').value = JSON.stringify(datosVenta);
+    document.getElementById('cortesData').value = JSON.stringify(cortes);
+    
+    document.getElementById('ventaForm').submit();
+};
+</script>
 {% endblock %}

@@ -3,60 +3,243 @@
 {% block title %}Ventas{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row mb-4 fade-in">
     <div class="col">
         <h1><i class="fas fa-shopping-cart"></i> Ventas</h1>
     </div>
     <div class="col text-end">
-        <a href="{{ url_for('ventas.nueva') }}" class="btn btn-primary">
+        <a href="{{ url_for('ventas.nueva') }}" class="btn btn-glass">
             <i class="fas fa-plus"></i> Nueva Venta
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th># Venta</th>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th>Metros</th>
-                        <th>Total</th>
-                        <th>Método Pago</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for venta in ventas %}
-                    <tr>
-                        <td>{{ venta.id_venta }}</td>
-                        <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</td>
-                        <td>{{ venta.nombre_cliente or 'Consumidor final' }}</td>
-                        <td>{{ "%.2f"|format(venta.total_metros) }} m</td>
-                        <td>${{ "%.2f"|format(venta.total_pagar) }}</td>
-                        <td>
-                            <span class="badge bg-info">{{ venta.metodo_pago }}</span>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('ventas.detalle', id=venta.id_venta) }}" 
-                               class="btn btn-sm btn-info">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            No hay ventas registradas
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<!-- PANEL DE FILTROS -->
+<div class="glass-soft p-4 mb-4">
+    <h5 class="mb-3"><i class="fas fa-filter text-primary"></i> Filtros</h5>
+    <form method="GET" action="{{ url_for('ventas.lista') }}" id="filtrosForm">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold mb-2">
+                    <i class="fas fa-calendar me-1 text-primary"></i> Desde
+                </label>
+                <input type="date" class="form-glass" name="fecha_inicio" 
+                       value="{{ filtros.fecha_inicio if filtros.fecha_inicio else '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold mb-2">
+                    <i class="fas fa-calendar me-1 text-primary"></i> Hasta
+                </label>
+                <input type="date" class="form-glass" name="fecha_fin" 
+                       value="{{ filtros.fecha_fin if filtros.fecha_fin else '' }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold mb-2">
+                    <i class="fas fa-bolt me-1 text-primary"></i> Rápido
+                </label>
+                <select class="form-glass" id="periodoRapido">
+                    <option value="">Personalizado</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Esta semana</option>
+                    <option value="mes">Este mes</option>
+                    <option value="trimestre">Último trimestre</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold mb-2">
+                    <i class="fas fa-money-bill-wave me-1 text-primary"></i> Método Pago
+                </label>
+                <select class="form-glass" name="metodo_pago">
+                    <option value="todos" {% if filtros.metodo_pago == 'todos' %}selected{% endif %}>Todos</option>
+                    <option value="efectivo" {% if filtros.metodo_pago == 'efectivo' %}selected{% endif %}>💵 Efectivo</option>
+                    <option value="tarjeta" {% if filtros.metodo_pago == 'tarjeta' %}selected{% endif %}>💳 Tarjeta</option>
+                    <option value="transferencia" {% if filtros.metodo_pago == 'transferencia' %}selected{% endif %}>🏦 Transferencia</option>
+                    <option value="mixto" {% if filtros.metodo_pago == 'mixto' %}selected{% endif %}>🔄 Mixto</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold mb-2">
+                    <i class="fas fa-tag me-1 text-primary"></i> Estado
+                </label>
+                <select class="form-glass" name="estado">
+                    <option value="todos" {% if filtros.estado == 'todos' %}selected{% endif %}>Todos</option>
+                    <option value="completada" {% if filtros.estado == 'completada' %}selected{% endif %}>✓ Completada</option>
+                    <option value="pendiente" {% if filtros.estado == 'pendiente' %}selected{% endif %}>⏳ Pendiente</option>
+                    <option value="anulada" {% if filtros.estado == 'anulada' %}selected{% endif %}>✗ Anulada</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold mb-2">
+                    <i class="fas fa-user me-1 text-primary"></i> Cliente
+                </label>
+                <input type="text" class="form-glass" name="cliente" 
+                       placeholder="Buscar por nombre..." 
+                       value="{{ filtros.cliente if filtros.cliente else '' }}">
+            </div>
+            <div class="col-md-6 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-glass flex-grow-1">
+                    <i class="fas fa-search me-2"></i> Aplicar filtros
+                </button>
+                <a href="{{ url_for('ventas.lista') }}" class="btn btn-glass">
+                    <i class="fas fa-undo-alt me-2"></i> Limpiar
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Cards de resumen -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-receipt fa-2x text-primary mb-2"></i>
+            <h3>{{ ventas|length }}</h3>
+            <p class="text-muted mb-0">Ventas encontradas</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+            <h3>${{ "%.2f"|format(ventas|sum(attribute='total_pagar')) }}</h3>
+            <p class="text-muted mb-0">Total Ingresos</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+            <h3>{{ "%.2f"|format(ventas|sum(attribute='total_metros')) }} m</h3>
+            <p class="text-muted mb-0">Metros Vendidos</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-ticket-alt fa-2x text-warning mb-2"></i>
+            <h3>${{ "%.2f"|format((ventas|sum(attribute='total_pagar')) / (ventas|length) if ventas|length > 0 else 0) }}</h3>
+            <p class="text-muted mb-0">Ticket Promedio</p>
         </div>
     </div>
 </div>
+
+<!-- Tabla de ventas -->
+<div class="glass-soft p-4">
+    <h5 class="mb-3"><i class="fas fa-list text-info"></i> Historial de Ventas</h5>
+    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="table table-glass" style="min-width: 850px;">
+            <thead>
+                <tr class="text-center">
+                    <th style="min-width: 70px;"># Venta</th>
+                    <th style="min-width: 140px;">Fecha</th>
+                    <th style="min-width: 150px;">Cliente</th>
+                    <th style="min-width: 80px;">Metros</th>
+                    <th style="min-width: 100px;">Total</th>
+                    <th style="min-width: 120px;">Método Pago</th>
+                    <th style="min-width: 110px;">Estado</th>
+                    <th style="min-width: 70px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr class="text-center">
+                    <td class="fw-semibold">{{ venta.id_venta }}</td>
+                    <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        {% if venta.nombre_cliente %}
+                            <i class="fas fa-user-circle me-1 text-primary"></i> {{ venta.nombre_cliente }}
+                        {% else %}
+                            <span class="text-muted"><i class="fas fa-user me-1"></i> Consumidor final</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold">{{ "%.2f"|format(venta.total_metros) }} <small class="text-muted">m</small></td>
+                    <td class="fw-bold text-primary">${{ "%.2f"|format(venta.total_pagar) }}</td>
+                    <td>
+                        {% if venta.metodo_pago == 'efectivo' %}
+                            <span class="badge-glass">💵 {{ venta.metodo_pago }}</span>
+                        {% elif venta.metodo_pago == 'tarjeta' %}
+                            <span class="badge-glass">💳 {{ venta.metodo_pago }}</span>
+                        {% elif venta.metodo_pago == 'transferencia' %}
+                            <span class="badge-glass">🏦 {{ venta.metodo_pago }}</span>
+                        {% else %}
+                            <span class="badge-glass">{{ venta.metodo_pago }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if venta.estado == 'completada' %}
+                            <span class="badge bg-success">✓ Completada</span>
+                        {% elif venta.estado == 'anulada' %}
+                            <span class="badge bg-danger">✗ Anulada</span>
+                        {% elif venta.estado == 'pendiente' %}
+                            <span class="badge bg-warning text-dark">⏳ Pendiente</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ venta.estado }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('ventas.detalle', id=venta.id_venta) }}" 
+                           class="btn btn-sm btn-glass" title="Ver detalle">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="fas fa-box-open fa-3x mb-3 d-block opacity-50"></i>
+                        No hay ventas que coincidan con los filtros seleccionados
+                        <div class="mt-2">
+                            <a href="{{ url_for('ventas.lista') }}" class="btn btn-glass btn-sm">
+                                <i class="fas fa-undo-alt"></i> Limpiar filtros
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Filtro rápido por período
+const periodoRapido = document.getElementById('periodoRapido');
+const fechaInicio = document.querySelector('input[name="fecha_inicio"]');
+const fechaFin = document.querySelector('input[name="fecha_fin"]');
+
+if (periodoRapido) {
+    periodoRapido.addEventListener('change', function() {
+        const hoy = new Date();
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        
+        let inicio = '';
+        let fin = `${year}-${month}-${day}`;
+        
+        switch(this.value) {
+            case 'hoy':
+                inicio = fin;
+                break;
+            case 'semana':
+                const semanaAtras = new Date(hoy);
+                semanaAtras.setDate(hoy.getDate() - 7);
+                inicio = `${semanaAtras.getFullYear()}-${String(semanaAtras.getMonth() + 1).padStart(2, '0')}-${String(semanaAtras.getDate()).padStart(2, '0')}`;
+                break;
+            case 'mes':
+                inicio = `${year}-${month}-01`;
+                break;
+            case 'trimestre':
+                const trimestreAtras = new Date(hoy);
+                trimestreAtras.setMonth(hoy.getMonth() - 3);
+                inicio = `${trimestreAtras.getFullYear()}-${String(trimestreAtras.getMonth() + 1).padStart(2, '0')}-${String(trimestreAtras.getDate()).padStart(2, '0')}`;
+                break;
+            default:
+                return;
+        }
+        
+        fechaInicio.value = inicio;
+        fechaFin.value = fin;
+    });
+}
+</script>
 {% endblock %}

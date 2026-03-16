@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Logs del Sistema{% endblock %}
+
+{% block content %}
+<div class="row mb-4 fade-in">
+    <div class="col">
+        <h1><i class="fas fa-history"></i> Logs del Sistema</h1>
+    </div>
+</div>
+
+<div class="glass-soft p-3">
+    <div class="table-responsive">
+        <table class="table table-glass">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Módulo</th>
+                    <th>Acción</th>
+                    <th>Detalle</th>
+                    <th>IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs %}
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log[5].strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                        <td>{{ log[7] }}</td>
+                        <td>{{ log[3] }}</td>
+                        <td><span class="badge-glass">{{ log[2] }}</span></td>
+                        <td>{{ log[4] if log[4] else '' }}</td>
+                        <td>{{ log[6] if log[6] else '' }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No hay logs registrados
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

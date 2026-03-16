@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Nuevo' if not proveedor else 'Editar' }} Proveedor{% endblock %}
+
+{% block content %}
+<div class="row mb-4 fade-in">
+    <div class="col">
+        <h1><i class="fas fa-{{ 'plus' if not proveedor else 'edit' }}"></i> 
+            {{ 'Nuevo Proveedor' if not proveedor else 'Editar Proveedor' }}
+        </h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('proveedores.lista') }}" class="btn btn-glass">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="glass-soft p-4">
+    <form method="POST">
+        <div class="mb-3">
+            <label for="nombre_proveedor" class="form-label">Nombre del Proveedor *</label>
+            <input type="text" class="form-control-glass" id="nombre_proveedor" name="nombre_proveedor" 
+                   value="{{ proveedor.nombre_proveedor if proveedor else '' }}" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="contacto" class="form-label">Persona de Contacto</label>
+                <input type="text" class="form-control-glass" id="contacto" name="contacto" 
+                       value="{{ proveedor.contacto if proveedor else '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" class="form-control-glass" id="telefono" name="telefono" 
+                       value="{{ proveedor.telefono if proveedor else '' }}">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control-glass" id="email" name="email" 
+                       value="{{ proveedor.email if proveedor else '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="tipo_telas" class="form-label">Tipos de Telas</label>
+                <input type="text" class="form-control-glass" id="tipo_telas" name="tipo_telas" 
+                       value="{{ proveedor.tipo_telas_suministra if proveedor else '' }}">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="direccion" class="form-label">Dirección</label>
+            <textarea class="form-control-glass" id="direccion" name="direccion" rows="2">{{ proveedor.direccion if proveedor else '' }}</textarea>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-glass">
+                <i class="fas fa-save"></i> {{ 'Guardar' if not proveedor else 'Actualizar' }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

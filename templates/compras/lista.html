@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Compras{% endblock %}
+
+{% block content %}
+<div class="row mb-4 fade-in">
+    <div class="col">
+        <h1><i class="fas fa-truck"></i> Compras a Proveedores</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('compras.nueva') }}" class="btn btn-glass">
+            <i class="fas fa-plus"></i> Nueva Compra
+        </a>
+    </div>
+</div>
+
+<!-- Cards de resumen -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-boxes fa-2x text-primary mb-2"></i>
+            <h3>{{ compras|length }}</h3>
+            <p class="text-muted">Total Compras</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+            <h3>${{ "%.2f"|format(compras|sum(attribute='total_pagar')) }}</h3>
+            <p class="text-muted">Total Invertido</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-ruler fa-2x text-info mb-2"></i>
+            <h3>{{ "%.2f"|format(compras|sum(attribute='total_metros')) }} m</h3>
+            <p class="text-muted">Metros Comprados</p>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de compras -->
+<div class="glass-soft p-4">
+    <div class="table-responsive">
+        <table class="table table-glass">
+            <thead>
+                <tr class="text-center">
+                    <th># Compra</th>
+                    <th>Fecha</th>
+                    <th>Proveedor</th>
+                    <th>Factura</th>
+                    <th>Metros</th>
+                    <th>Total</th>
+                    <th>Estado Pago</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras %}
+                <tr class="text-center">
+                    <td class="fw-semibold">{{ compra.id_compra }}</td>
+                    <td>{{ compra.fecha_compra.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ compra.nombre_proveedor }}</td>
+                    <td>{{ compra.numero_factura or '-' }}</td>
+                    <td>{{ "%.2f"|format(compra.total_metros) }} m</td>
+                    <td class="fw-bold text-primary">${{ "%.2f"|format(compra.total_pagar) }}</td>
+                    <td>
+                        {% if compra.estado_pago == 'pagado' %}
+                            <span class="badge bg-success">Pagado</span>
+                        {% elif compra.estado_pago == 'pendiente' %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% else %}
+                            <span class="badge bg-info">Parcial</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('compras.detalle', id=compra.id_compra) }}" class="btn btn-sm btn-glass">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No hay compras registradas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

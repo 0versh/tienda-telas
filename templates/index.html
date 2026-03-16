@@ -1,90 +1,194 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row mb-4 fade-in">
     <div class="col">
-        <h1><i class="fas fa-home"></i> Dashboard</h1>
-        <p class="text-muted">Bienvenido al sistema de gestión de tienda de telas</p>
+        <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+        <p class="text-muted">Bienvenido al sistema de gestión de Papel Tapiz Bella Vista</p>
     </div>
 </div>
 
-<!-- Tarjetas de acceso rápido a los módulos -->
-
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card text-white bg-primary h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-cut fa-4x mb-3"></i>
-                <h3 class="card-title">Productos</h3>
-                <p class="card-text">Gestiona el catálogo de telas</p>
-                <a href="{{ url_for('productos.lista') }}" class="btn btn-light">
-                    <i class="fas fa-arrow-right"></i> Ingresar
-                </a>
-            </div>
+<!-- Cards de resumen con glass-medium -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-cut fa-3x text-primary mb-3"></i>
+            <h3>{{ stats.total_productos if stats and stats.total_productos else 0 }}</h3>
+            <p class="text-muted mb-0">Productos</p>
+            <a href="{{ url_for('productos.lista') }}" class="btn btn-glass btn-sm mt-3">
+                Ver detalles <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
-
-     <div class="col-md-4 mb-4">
-        <div class="card text-white bg-success h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-boxes fa-4x mb-3"></i>
-                <h3 class="card-title">Inventario</h3>
-                <p class="card-text">Control de rollos y existencias</p>
-                <a href="{{ url_for('inventario.lista') }}" class="btn btn-light">
-                    <i class="fas fa-arrow-right"></i> Ingresar
-                </a>
-            </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+            <h3>{{ stats.total_rollos if stats and stats.total_rollos else 0 }}</h3>
+            <p class="text-muted mb-0">Rollos</p>
+            <a href="{{ url_for('inventario.lista') }}" class="btn btn-glass btn-sm mt-3">
+                Ver inventario <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
-
-     <div class="col-md-4 mb-4">
-        <div class="card text-white bg-warning h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-shopping-cart fa-4x mb-3"></i>
-                <h3 class="card-title">Ventas</h3>
-                <p class="card-text">Registra ventas y cortes</p>
-                <a href="{{ url_for('ventas.lista') }}" class="btn btn-light">
-                    <i class="fas fa-arrow-right"></i> Ingresar
-                </a>
-            </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <h3>{{ stats.stock_critico if stats and stats.stock_critico else 0 }}</h3>
+            <p class="text-muted mb-0">Stock Crítico</p>
+            <a href="{{ url_for('alertas.ver_alertas') }}" class="btn btn-glass btn-sm mt-3">
+                Ver alertas <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="dashboard-card text-center">
+            <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
+            <h3>${{ "%.2f"|format(stats.ventas_hoy_total if stats and stats.ventas_hoy_total else 0) }}</h3>
+            <p class="text-muted mb-0">Ventas Hoy</p>
+            <a href="{{ url_for('ventas.lista') }}" class="btn btn-glass btn-sm mt-3">
+                Ver ventas <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
 </div>
 
-<!-- Acciones rápidas adicionales -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('productos.nuevo') }}" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-plus"></i> Nuevo Producto
-                        </a>
+<!-- Gráficos y estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="glass-soft p-4">
+            <h5 class="mb-3"><i class="fas fa-chart-line text-primary"></i> Ventas</h5>
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="dashboard-card p-3">
+                        <h6 class="text-muted">Esta Semana</h6>
+                        <h3>${{ "%.2f"|format(stats.ventas_semana if stats and stats.ventas_semana else 0) }}</h3>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('ventas.nueva') }}" class="btn btn-outline-success w-100">
-                            <i class="fas fa-cash-register"></i> Nueva Venta
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('inventario.lista') }}" class="btn btn-outline-info w-100">
-                            <i class="fas fa-boxes"></i> Ver Inventario
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('ventas.lista') }}" class="btn btn-outline-warning w-100">
-                            <i class="fas fa-history"></i> Ver Ventas
-                        </a>
+                </div>
+                <div class="col-6">
+                    <div class="dashboard-card p-3">
+                        <h6 class="text-muted">Este Mes</h6>
+                        <h3>${{ "%.2f"|format(stats.ventas_mes if stats and stats.ventas_mes else 0) }}</h3>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="glass-soft p-4">
+            <h5 class="mb-3"><i class="fas fa-bolt text-warning"></i> Acciones Rápidas</h5>
+            <div class="row g-2">
+                <div class="col-6">
+                    <a href="{{ url_for('productos.nuevo') }}" class="btn btn-glass w-100">
+                        <i class="fas fa-plus"></i> Nuevo Producto
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{{ url_for('ventas.nueva') }}" class="btn btn-glass w-100">
+                        <i class="fas fa-cash-register"></i> Nueva Venta
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{{ url_for('proveedores.nuevo') }}" class="btn btn-glass w-100">
+                        <i class="fas fa-truck"></i> Nuevo Proveedor
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{{ url_for('inventario.lista') }}" class="btn btn-glass w-100">
+                        <i class="fas fa-boxes"></i> Ver Inventario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Stock Crítico -->
+{% if stats and stats.productos_criticos and stats.productos_criticos|length > 0 %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-soft p-3 border-danger">
+            <h5 class="text-danger mb-3"><i class="fas fa-exclamation-circle"></i> Productos con Stock Crítico</h5>
+            <div class="table-responsive">
+                <table class="table table-glass">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Proveedor</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in stats.productos_criticos %}
+                        <tr>
+                            <td>{{ producto.codigo_tela }}</td>
+                            <td>{{ producto.nombre_tela }}</td>
+                            <td class="text-danger fw-bold">{{ "%.2f"|format(producto.stock_total_metros) }} m</td>
+                            <td>{{ "%.2f"|format(producto.stock_minimo_metros) }} m</td>
+                            <td>{{ producto.nombre_proveedor }}</td>
+                            <td>
+                                <a href="{{ url_for('productos.editar', id=producto.id_tela) }}" 
+                                   class="btn btn-sm btn-glass">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Últimas Ventas -->
+{% if stats and stats.ultimas_ventas and stats.ultimas_ventas|length > 0 %}
+<div class="row">
+    <div class="col-12">
+        <div class="glass-soft p-3">
+            <h5 class="mb-3"><i class="fas fa-history text-info"></i> Últimas Ventas</h5>
+            <div class="table-responsive">
+                <table class="table table-glass">
+                    <thead>
+                        <tr>
+                            <th># Venta</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th>Total</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in stats.ultimas_ventas %}
+                        <tr>
+                            <td>{{ venta.id_venta }}</td>
+                            <td>{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ venta.nombre_cliente or 'Consumidor final' }}</td>
+                            <td>{{ venta.nombre_usuario }}</td>
+                            <td>${{ "%.2f"|format(venta.total_pagar) }}</td>
+                            <td>
+                                <a href="{{ url_for('ventas.detalle', id=venta.id_venta) }}" 
+                                   class="btn btn-sm btn-glass">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

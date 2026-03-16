@@ -72,8 +72,8 @@ class VentaModel:
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id_venta
             """, (
-                datetime.now(), 1,  # ID usuario temporal (después pondremos login)
-                None,  # cliente temporal
+                datetime.now(), 1,
+                None,
                 datos_venta['total_metros'],
                 datos_venta['subtotal'],
                 datos_venta.get('descuento', 0),
@@ -125,6 +125,54 @@ class VentaModel:
             WHERE ir.metros_actuales > 0
             ORDER BY t.nombre_tela, ir.numero_rollo
         """)
+        resultados = [dict(row) for row in cur.fetchall()]
+        cur.close()
+        conn.close()
+        return resultados
+
+    @staticmethod
+    def obtener_filtradas(filtros):
+        """Obtiene ventas con filtros aplicados"""
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        # Construir consulta base
+        query = """
+            SELECT v.*, u.nombre_usuario, c.nombre_cliente
+            FROM ventas v
+            JOIN usuarios u ON v.id_usuario = u.id_usuario
+            LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
+            WHERE 1=1
+        """
+        params = []
+        
+        # Filtro por fecha
+        if filtros.get('fecha_inicio'):
+            query += " AND DATE(v.fecha_venta) >= %s"
+            params.append(filtros['fecha_inicio'])
+        
+        if filtros.get('fecha_fin'):
+            query += " AND DATE(v.fecha_venta) <= %s"
+            params.append(filtros['fecha_fin'])
+        
+        # Filtro por método de pago
+        if filtros.get('metodo_pago') and filtros['metodo_pago'] != 'todos':
+            query += " AND v.metodo_pago = %s"
+            params.append(filtros['metodo_pago'])
+        
+        # Filtro por estado
+        if filtros.get('estado') and filtros['estado'] != 'todos':
+            query += " AND v.estado = %s"
+            params.append(filtros['estado'])
+        
+        # Filtro por cliente (búsqueda por nombre)
+        if filtros.get('cliente'):
+            query += " AND c.nombre_cliente ILIKE %s"
+            params.append(f"%{filtros['cliente']}%")
+        
+        query += " ORDER BY v.fecha_venta DESC"
+        
+        cur.execute(query, params)
         resultados = [dict(row) for row in cur.fetchall()]
         cur.close()
         conn.close()

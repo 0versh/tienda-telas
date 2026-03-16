@@ -3,176 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sistema de Inventario - Tienda de Telas{% endblock %}</title>
+    <title>{% block title %}Sistema de Inventario - Papel Tapiz Bella Vista{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome para iconos -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        .navbar-brand { 
-            font-weight: bold; 
+        /* ========== VARIABLES ========== */
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #0d6efd;
+            --accent-glow: rgba(13, 110, 253, 0.3);
+            --glass-strong: rgba(255, 255, 255, 0.7);
+            --glass-medium: rgba(255, 255, 255, 0.85);
+            --glass-soft: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
-        .card { 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            transition: transform 0.2s;
+        
+        /* Dark mode variables */
+        body.dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-color: #6ea8fe;
+            --accent-glow: rgba(110, 168, 254, 0.3);
+            --glass-strong: rgba(45, 45, 45, 0.7);
+            --glass-medium: rgba(45, 45, 45, 0.85);
+            --glass-soft: rgba(45, 45, 45, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        
+        /* ========== ESTILOS GENERALES ========== */
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px;
         }
-        .table-hover tbody tr:hover { 
-            background-color: rgba(0,123,255,0.05); 
+        
+        /* ========== GLASS FUERTE (Navbar, Modales) ========== */
+        .glass-strong {
+            background: var(--glass-strong) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
         }
-        .opacity-50 { 
-            opacity: 0.5; 
+        
+        /* ========== GLASS MEDIO (Cards de dashboard, botones) ========== */
+        .glass-medium {
+            background: var(--glass-medium);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        footer { 
-            margin-top: auto; 
+        
+        .glass-medium:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
         }
-        /* Estilos para badges de color */
-        .color-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
+        
+        /* ========== GLASS SUAVE (Tablas, formularios) ========== */
+        .glass-soft {
+            background: var(--glass-soft);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        /* ========== NAVBAR ========== */
+        .navbar-glass {
+            background: var(--glass-strong) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .navbar-glass .navbar-brand,
+        .navbar-glass .nav-link {
+            color: var(--text-primary) !important;
+        }
+        
+        .navbar-glass .nav-link:hover {
+            color: var(--accent-color) !important;
+        }
+        
+        /* ========== BOTONES ========== */
+        .btn-glass {
+            background: var(--glass-medium);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-glass:hover {
+            background: var(--accent-color);
             color: white;
-            font-size: 0.875rem;
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--accent-glow);
+            backdrop-filter: blur(15px);
+        }
+        
+        /* ========== TABLAS (Muy legibles) ========== */
+        .table-glass {
+            background: var(--glass-soft);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .table-glass thead th {
+            background: var(--accent-color);
+            color: white;
+            border-bottom: none;
+            padding: 1rem;
             font-weight: 600;
-            text-align: center;
-            min-width: 70px;
         }
-        .color-badge-default {
-            background-color: #6c757d !important;
+        
+        .table-glass tbody tr {
+            border-bottom: 1px solid var(--glass-border);
+            transition: background 0.2s ease;
         }
-        /* Colores predefinidos */
-        .color-badge-blanco { background-color: #ffffff; color: #000000; border: 1px solid #ddd; }
-        .color-badge-negro { background-color: #000000; }
-        .color-badge-rojo { background-color: #dc3545; }
-        .color-badge-azul { background-color: #0d6efd; }
-        .color-badge-verde { background-color: #198754; }
-        .color-badge-amarillo { background-color: #ffc107; color: #000000; }
-        .color-badge-gris { background-color: #6c757d; }
+        
+        .table-glass tbody tr:hover {
+            background: rgba(13, 110, 253, 0.05);
+        }
+        
+        .table-glass tbody td {
+            padding: 1rem;
+            color: var(--text-primary);
+        }
+        
+        /* ========== CARDS DEL DASHBOARD ========== */
+        .dashboard-card {
+            background: var(--glass-medium);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            height: 100%;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* ========== BADGES ========== */
+        .badge-glass {
+            background: var(--glass-medium);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        
+        /* ========== DROPDOWNS ========== */
+        .dropdown-menu-glass {
+            background: var(--glass-strong);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .dropdown-menu-glass .dropdown-item {
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-menu-glass .dropdown-item:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        /* ========== FORMULARIOS ========== */
+        .form-glass {
+            background: var(--glass-soft);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-glass:focus {
+            background: var(--glass-soft);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            outline: none;
+        }
+        
+        /* ========== ANIMACIONES ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* ========== FOOTER ========== */
+        footer {
+            background: var(--glass-strong);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            margin-top: auto;
+        }
     </style>
-    
-    {% block styles %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-        <!-- Logo con texto estilizado (a la izquierda) -->
-        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('inicio') }}">
-            <i class="fas fa-paint-roller" style="font-size: 2rem; margin-right: 15px; color: #ffd700;"></i>
-            <div>
-                <div style="font-family: 'Arial Black', sans-serif; font-size: 1.5rem; letter-spacing: 3px; line-height: 1.2;">
-                    PAPEL TAPIZ
-                </div>
-                <div style="font-family: 'Georgia', serif; font-size: 0.8rem; letter-spacing: 5px; color: #ffd700; text-transform: uppercase;">
-                    — BELLA VISTA —
-                </div>
-            </div>
-        </a>
+    <!-- Canvas de partículas (opcional) -->
+    <canvas id="particlesCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Menú de navegación principal -->
-            <ul class="navbar-nav ms-4">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('inicio') }}">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('productos.lista') }}">
-                        <i class="fas fa-cut"></i> Productos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('inventario.lista') }}">
-                        <i class="fas fa-boxes"></i> Inventario
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('ventas.lista') }}">
-                        <i class="fas fa-shopping-cart"></i> Ventas
-                    </a>
-                </li>
-            </ul>
+    <!-- Navbar con glass fuerte -->
+    <nav class="navbar navbar-expand-lg navbar-glass fixed-top">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('inicio') }}">
+                <i class="fas fa-paint-roller" style="font-size: 2rem; margin-right: 15px; color: var(--accent-color);"></i>
+                <div>
+                    <div style="font-family: 'Arial Black', sans-serif; font-size: 1.5rem; letter-spacing: 3px;">
+                        Papel Tapiz Bella Vista
+                    </div>
+                    <div style="font-family: 'Georgia', serif; font-size: 0.8rem; letter-spacing: 5px; color: var(--accent-color);">
+                        — BELLA VISTA —
+                    </div>
+                </div>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             
-            <!-- Menú de usuario (a la derecha) -->
-            <ul class="navbar-nav ms-auto">
-                {% if current_user.is_authenticated %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle"></i> {{ current_user.nombre_usuario }}
-                        <span class="badge bg-info">{{ current_user.rol }}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('auth.perfil') }}">
-                                <i class="fas fa-id-card"></i> Mi Perfil
-                            </a>
-                        </li>
-                        {% if current_user.rol == 'admin' %}
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('usuarios.lista') }}">
-                                <i class="fas fa-users-cog"></i> Usuarios
-                            </a>
-                        </li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                {% else %}
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Menú principal -->
+
+                <ul class="navbar-nav ms-4">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('inicio') }}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('productos.lista') }}">
+                            <i class="fas fa-cut"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('inventario.lista') }}">
+                            <i class="fas fa-boxes"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('compras.lista') }}">
+                            <i class="fas fa-truck"></i> Compras
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ventas.lista') }}">
+                            <i class="fas fa-shopping-cart"></i> Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('proveedores.lista') }}">
+                            <i class="fas fa-truck"></i> Proveedores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('alertas.ver_alertas') }}">
+                            <i class="fas fa-bell"></i> Alertas
+                            <span class="badge bg-danger" id="alertaCount">0</span>
+                        </a>
+                    </li>
+                </ul>
+                
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.login') }}">
-                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
+    <a class="nav-link" href="{{ url_for('rfid.lector') }}">
+        <i class="fas fa-rss"></i> Lector RFID
+    </a>
+</li>
+
+                <!-- Menú de usuario -->
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ current_user.nombre_usuario }}
+                            <span class="badge bg-info">{{ current_user.rol }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-glass dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('auth.perfil') }}">
+                                    <i class="fas fa-id-card"></i> Mi Perfil
+                                </a>
+                            </li>
+                            {% if current_user.rol == 'admin' %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('usuarios.lista') }}">
+                                    <i class="fas fa-users-cog"></i> Usuarios
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('logs.ver_logs') }}">
+                                    <i class="fas fa-history"></i> Logs del Sistema
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item" href="#" id="darkModeToggle">
+                                    <i class="fas fa-moon"></i> Modo Oscuro
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Contenido principal -->
-    <main class="container my-4">
+    <main class="container my-4 fade-in">
         <!-- Mensajes flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show glass-soft" role="alert">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-light text-center text-lg-start mt-5">
-        <div class="text-center p-3" style="background-color: rgba(0,0,0,0.05);">
-            <small>© 2024 Sistema de Inventario - Tienda de Telas</small>
+    <footer class="text-center text-lg-start mt-5 py-3">
+        <div class="text-center">
+            <small>© 2026 Sistema de Inventario - Papel Tapiz Bella Vista</small>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery (opcional) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dark Mode Toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('dark-mode');
+                    const icon = this.querySelector('i');
+                    if (document.body.classList.contains('dark-mode')) {
+                        icon.className = 'fas fa-sun';
+                        this.innerHTML = '<i class="fas fa-sun"></i> Modo Claro';
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else {
+                        icon.className = 'fas fa-moon';
+                        this.innerHTML = '<i class="fas fa-moon"></i> Modo Oscuro';
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+                
+                if (localStorage.getItem('darkMode') === 'enabled') {
+                    document.body.classList.add('dark-mode');
+                    const toggle = document.getElementById('darkModeToggle');
+                    if (toggle) {
+                        toggle.innerHTML = '<i class="fas fa-sun"></i> Modo Claro';
+                    }
+                }
+            }
+
+            // Contador de alertas
+            function actualizarContadorAlertas() {
+                fetch('/alertas/api/alertas')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.length;
+                        const badge = document.getElementById('alertaCount');
+                        if (badge) {
+                            badge.textContent = count;
+                            badge.style.display = count > 0 ? 'inline' : 'none';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            actualizarContadorAlertas();
+            setInterval(actualizarContadorAlertas, 300000);
+        });
+
+        // Partículas (opcional - más sutiles)
+        const canvas = document.getElementById('particlesCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+
+            function initParticles() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                for (let i = 0; i < 20; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 2 + 0.5,
+                        speedX: (Math.random() - 0.5) * 0.2,
+                        speedY: (Math.random() - 0.5) * 0.2,
+                        opacity: Math.random() * 0.2 + 0.05
+                    });
+                }
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(13, 110, 253, ${p.opacity})`;
+                    ctx.fill();
+                    
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    
+                    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+                });
+                
+                requestAnimationFrame(drawParticles);
+            }
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+
+            initParticles();
+            drawParticles();
+        }
+    </script>
     
     {% block scripts %}{% endblock %}
 </body>

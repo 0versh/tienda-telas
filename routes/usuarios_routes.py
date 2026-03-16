@@ -4,12 +4,11 @@ from flask_login import login_required, current_user
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from models.usuario_model import UsuarioModel
+from models.usuario_model import UsuarioModel  # <-- IMPORTACIÓN AL INICIO
 from database.db_connection import get_db_connection
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/usuarios')
 
-# Decorador para verificar si es admin
 def admin_required(f):
     from functools import wraps
     @wraps(f)
@@ -78,30 +77,36 @@ def editar(id):
                     flash('Las contraseñas no coinciden', 'danger')
                     return redirect(url_for('usuarios.editar', id=id))
             
+            # Usar el modelo importado al inicio
             UsuarioModel.actualizar(id, datos)
             flash('Usuario actualizado exitosamente', 'success')
             return redirect(url_for('usuarios.lista'))
             
         except Exception as e:
             flash(f'Error al actualizar usuario: {str(e)}', 'danger')
+            return redirect(url_for('usuarios.editar', id=id))
     
-    # Obtener datos del usuario para mostrar en el formulario
-    from models.usuario_model import UsuarioModel
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT id_usuario, nombre_usuario, nombre_completo, email, rol 
-        FROM usuarios WHERE id_usuario = %s
-    """, (id,))
-    usuario = cur.fetchone()
-    cur.close()
-    conn.close()
-    
-    if not usuario:
-        flash('Usuario no encontrado', 'danger')
+    # GET: obtener datos del usuario
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id_usuario, nombre_usuario, nombre_completo, email, rol 
+            FROM usuarios WHERE id_usuario = %s
+        """, (id,))
+        usuario = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not usuario:
+            flash('Usuario no encontrado', 'danger')
+            return redirect(url_for('usuarios.lista'))
+        
+        return render_template('usuarios/editar.html', usuario=usuario)
+        
+    except Exception as e:
+        flash(f'Error al cargar usuario: {str(e)}', 'danger')
         return redirect(url_for('usuarios.lista'))
-    
-    return render_template('usuarios/editar.html', usuario=usuario)
 
 @usuarios_bp.route('/eliminar/<int:id>')
 @login_required
