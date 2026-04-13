@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* ========== VARIABLES ========== */
+        
         :root {
             --bg-primary: #f8f9fa;
             --bg-secondary: #ffffff;
@@ -26,7 +26,7 @@
             --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
         
-        /* Dark mode variables */
+       
         body.dark-mode {
             --bg-primary: #1a1a1a;
             --bg-secondary: #2d2d2d;
@@ -53,7 +53,7 @@
             padding-top: 80px;
         }
         
-        /* ========== GLASS FUERTE (Navbar, Modales) ========== */
+        
         .glass-strong {
             background: var(--glass-strong) !important;
             backdrop-filter: blur(10px);
@@ -62,7 +62,7 @@
             box-shadow: var(--glass-shadow);
         }
         
-        /* ========== GLASS MEDIO (Cards de dashboard, botones) ========== */
+        
         .glass-medium {
             background: var(--glass-medium);
             backdrop-filter: blur(8px);
@@ -78,7 +78,7 @@
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
         }
         
-        /* ========== GLASS SUAVE (Tablas, formularios) ========== */
+       
         .glass-soft {
             background: var(--glass-soft);
             backdrop-filter: blur(3px);
@@ -128,7 +128,7 @@
             backdrop-filter: blur(15px);
         }
         
-        /* ========== TABLAS (Muy legibles) ========== */
+        /* ========== TABLAS ========== */
         .table-glass {
             background: var(--glass-soft);
             backdrop-filter: blur(3px);
@@ -248,10 +248,10 @@
     </style>
 </head>
 <body>
-    <!-- Canvas de partículas (opcional) -->
+    <!-- Canvas de partículas -->
     <canvas id="particlesCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
-    <!-- Navbar con glass fuerte -->
+    <!-- Navbar  -->
     <nav class="navbar navbar-expand-lg navbar-glass fixed-top">
         <div class="container-fluid">
             <!-- Logo -->
@@ -444,7 +444,7 @@
             setInterval(actualizarContadorAlertas, 300000);
         });
 
-        // Partículas (opcional - más sutiles)
+        // Partículas más sutiles)
         const canvas = document.getElementById('particlesCanvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');

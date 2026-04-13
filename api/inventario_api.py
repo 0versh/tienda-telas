@@ -26,8 +26,8 @@ class InventarioAPI(Resource):
         data = request.get_json()
         codigo_rfid = data.get('codigo_rfid')
         
-        # Buscar rollo por código RFID (asumiendo que lo guardas en numero_rollo)
-        # Aquí implementarías la lógica de búsqueda por RFID
+        # Buscar rollo por código RFID en la base de datos
+        # Lógica de búsqueda por RFID
         
         return {
             'status': 'success',

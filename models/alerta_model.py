@@ -47,10 +47,7 @@ class AlertaModel:
                 'fecha': datetime.now()
             })
         
-        # Aquí puedes agregar más tipos de alertas:
-        # - Pagos pendientes a proveedores
-        # - Cumpleaños de clientes
-        # - Etc.
+
         
         cur.close()
         conn.close()

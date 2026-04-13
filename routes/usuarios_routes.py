@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from models.usuario_model import UsuarioModel  # <-- IMPORTACIÓN AL INICIO
+from models.usuario_model import UsuarioModel  
 from database.db_connection import get_db_connection
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/usuarios')

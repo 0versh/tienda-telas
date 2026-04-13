@@ -32,7 +32,7 @@ def login():
                 email=usuario['email'],
                 rol=usuario['rol']
             )
-            login_user(user_obj, remember=True)  # Agregar remember=True
+            login_user(user_obj, remember=True)  
             
             # Obtener la página a la que intentaba acceder
             next_page = request.args.get('next')

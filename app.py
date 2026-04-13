@@ -62,7 +62,7 @@ app.register_blueprint(compras_bp)
 app.register_blueprint(rfid_bp)
 
 # ============================================
-# DASHBOARD PRINCIPAL - VERSIÓN LIMPIA
+# DASHBOARD PRINCIPAL 
 # ============================================
 @app.route('/')
 def inicio():
@@ -70,7 +70,7 @@ def inicio():
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         
-        # OBTENER DATOS DIRECTAMENTE DE LA BD
+        # OBTENER DATOS DE LA BD
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         
@@ -119,7 +119,7 @@ def inicio():
         cur.close()
         conn.close()
         
-        # Crear diccionario de estadísticas (solo lo esencial)
+        # Crear diccionario de estadísticas 
         stats = {
             'total_productos': total_productos,
             'total_rollos': total_rollos,
