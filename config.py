@@ -1,19 +1,16 @@
-# config.py
 import os
 from dotenv import load_dotenv
 
-# Cargar variables del archivo .env
+# Cargar variables del archivo .env solo en desarrollo local
+# En producción, Render inyecta las variables directamente
 load_dotenv()
 
 class Config:
-    # Base de datos
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/inventario_telas')
-    DB_HOST = os.getenv('DB_HOST')
-    DB_PORT = os.getenv('DB_PORT')
-    DB_NAME = os.getenv('DB_NAME')
-    DB_USER = os.getenv('DB_USER')
-    DB_PASSWORD = os.getenv('DB_PASSWORD')
+    # Base de datos: primero intenta usar DATABASE_URL (Render) o la conexión local
+    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:Kidover2020@localhost:5432/inventario_telas')
     
-    # App
-    SECRET_KEY = os.getenv('SECRET_KEY', 'clave-secreta-temporal')
-    DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+    # Seguridad
+    SECRET_KEY = os.getenv('SECRET_KEY', 'clave-secreta-temporal-para-desarrollo')
+    
+    # Modo debug: desactivado en producción por defecto
+    DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
