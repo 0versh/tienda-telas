@@ -1,56 +1,63 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Nuevo' if not tela else 'Editar' }} Producto{% endblock %}
+{% block title %}Editar Producto{% endblock %}
 
 {% block content %}
 <div class="row mb-4 fade-in">
     <div class="col">
-        <h1><i class="fas fa-{{ 'plus' if not tela else 'edit' }}"></i> 
-            {{ 'Nuevo Producto' if not tela else 'Editar Producto' }}
-        </h1>
+        <h1><i class="fas fa-edit text-primary"></i> Editar Producto</h1>
+        <p class="text-muted">Modifica los datos de la tela seleccionada.</p>
     </div>
     <div class="col text-end">
         <a href="{{ url_for('productos.lista') }}" class="btn btn-glass">
-            <i class="fas fa-arrow-left"></i> Volver
+            <i class="fas fa-arrow-left me-1"></i> Volver
         </a>
     </div>
 </div>
 
-<div class="glass-soft p-4">
+<div class="glass-soft p-4" style="border-top: 4px solid var(--accent-color);">
     <form method="POST">
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="codigo" class="form-label">Código *</label>
-                <input type="text" class="form-control-glass" id="codigo" name="codigo" 
-                       value="{{ tela.codigo_tela if tela else '' }}" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-barcode text-primary me-1"></i> Código *
+                </label>
+                <input type="text" class="form-glass" id="codigo" name="codigo" 
+                       value="{{ tela.codigo_tela }}" required>
             </div>
             <div class="col-md-6 mb-3">
-                <label for="nombre" class="form-label">Nombre *</label>
-                <input type="text" class="form-control-glass" id="nombre" name="nombre" 
-                       value="{{ tela.nombre_tela if tela else '' }}" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-tag text-primary me-1"></i> Nombre *
+                </label>
+                <input type="text" class="form-glass" id="nombre" name="nombre" 
+                       value="{{ tela.nombre_tela }}" required>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="id_tipo" class="form-label">Tipo de Tela *</label>
-                <select class="form-control-glass" id="id_tipo" name="id_tipo" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-layer-group text-primary me-1"></i> Tipo de Tela *
+                </label>
+                <select class="form-glass" id="id_tipo" name="id_tipo" required>
                     <option value="">Seleccione...</option>
                     {% for tipo in tipos %}
                     <option value="{{ tipo.id_tipo }}" 
-                            {% if tela and tela.id_tipo == tipo.id_tipo %}selected{% endif %}>
+                            {% if tipo.id_tipo == tela.id_tipo %}selected{% endif %}>
                         {{ tipo.nombre_tipo }}
                     </option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-6 mb-3">
-                <label for="id_proveedor" class="form-label">Proveedor *</label>
-                <select class="form-control-glass" id="id_proveedor" name="id_proveedor" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-truck text-primary me-1"></i> Proveedor *
+                </label>
+                <select class="form-glass" id="id_proveedor" name="id_proveedor" required>
                     <option value="">Seleccione...</option>
                     {% for proveedor in proveedores %}
-                    <option value="{{ proveedor.id_proveedor }}"
-                            {% if tela and tela.id_proveedor == proveedor.id_proveedor %}selected{% endif %}>
+                    <option value="{{ proveedor.id_proveedor }}" 
+                            {% if proveedor.id_proveedor == tela.id_proveedor %}selected{% endif %}>
                         {{ proveedor.nombre_proveedor }}
                     </option>
                     {% endfor %}
@@ -59,45 +66,65 @@
         </div>
 
         <div class="mb-3">
-            <label for="composicion" class="form-label">Composición</label>
-            <input type="text" class="form-control-glass" id="composicion" name="composicion" 
-                   value="{{ tela.composicion if tela else '' }}">
+            <label class="form-label fw-semibold">
+                <i class="fas fa-fill-drip text-primary me-1"></i> Composición
+            </label>
+            <input type="text" class="form-glass" id="composicion" name="composicion" 
+                   value="{{ tela.composicion or '' }}" placeholder="Ej: 100% Algodón">
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="ancho" class="form-label">Ancho (m)</label>
-                <input type="number" step="0.01" class="form-control-glass" id="ancho" name="ancho" 
-                       value="{{ tela.ancho if tela else '' }}">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-arrows-alt-h text-primary me-1"></i> Ancho (m)
+                </label>
+                <input type="number" step="0.01" class="form-glass" id="ancho" name="ancho" 
+                       value="{{ tela.ancho or '' }}">
             </div>
             <div class="col-md-6 mb-3">
-                <label for="peso_gramaje" class="form-label">Peso (gr/m²)</label>
-                <input type="number" step="0.01" class="form-control-glass" id="peso_gramaje" name="peso_gramaje" 
-                       value="{{ tela.peso_gramaje if tela else '' }}">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-weight-hanging text-primary me-1"></i> Peso (gr/m²)
+                </label>
+                <input type="number" step="0.01" class="form-glass" id="peso_gramaje" name="peso_gramaje" 
+                       value="{{ tela.peso_gramaje or '' }}">
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label for="precio_compra" class="form-label">Precio Compra *</label>
-                <input type="number" step="0.01" class="form-control-glass" id="precio_compra" name="precio_compra" 
-                       value="{{ tela.precio_compra_metro if tela else '' }}" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-dollar-sign text-primary me-1"></i> Precio Compra *
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">$</span>
+                    <input type="number" step="0.01" class="form-glass border-start-0" 
+                           id="precio_compra" name="precio_compra" 
+                           value="{{ tela.precio_compra_metro }}" required>
+                </div>
             </div>
             <div class="col-md-4 mb-3">
-                <label for="precio_venta" class="form-label">Precio Venta *</label>
-                <input type="number" step="0.01" class="form-control-glass" id="precio_venta" name="precio_venta" 
-                       value="{{ tela.precio_venta_metro if tela else '' }}" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-tag text-primary me-1"></i> Precio Venta *
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">$</span>
+                    <input type="number" step="0.01" class="form-glass border-start-0" 
+                           id="precio_venta" name="precio_venta" 
+                           value="{{ tela.precio_venta_metro }}" required>
+                </div>
             </div>
             <div class="col-md-4 mb-3">
-                <label for="stock_minimo" class="form-label">Stock Mínimo *</label>
-                <input type="number" step="0.01" class="form-control-glass" id="stock_minimo" name="stock_minimo" 
-                       value="{{ tela.stock_minimo_metros if tela else '' }}" required>
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-chart-line text-primary me-1"></i> Stock Mínimo (m) *
+                </label>
+                <input type="number" step="0.01" class="form-glass" id="stock_minimo" name="stock_minimo" 
+                       value="{{ tela.stock_minimo_metros }}" required>
             </div>
         </div>
 
-        <div class="text-end">
-            <button type="submit" class="btn btn-glass">
-                <i class="fas fa-save"></i> {{ 'Guardar' if not tela else 'Actualizar' }}
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-glass px-5 py-2">
+                <i class="fas fa-save me-2"></i> Actualizar Producto
             </button>
         </div>
     </form>

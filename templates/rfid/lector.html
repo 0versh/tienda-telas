@@ -1,237 +1,127 @@
 {% extends "base.html" %}
 
-{% block title %}Lector RFID{% endblock %}
+{% block title %}Lector RFID - Manual{% endblock %}
 
 {% block content %}
 <div class="row mb-4 fade-in">
     <div class="col">
-        <h1><i class="fas fa-rss"></i> Lector RFID</h1>
-        <p class="text-muted">Acerca un tag RFID al lector para registrar entrada o salida</p>
+        <h1><i class="fas fa-rss"></i> Lector RFID Manual</h1>
+        <p class="text-muted">Ingresa el código RFID del rollo para consultar su información.</p>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-6">
-        <div class="glass-soft p-4 text-center">
-            <i class="fas fa-rss fa-4x text-primary mb-3"></i>
-            <h3 id="estadoLector">🟢 Esperando lectura...</h3>
-            <div class="mt-3">
+        <div class="glass-soft p-4">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Código RFID</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent">📡 Código RFID</span>
-                    <input type="text" class="form-glass" id="rfidInput" 
-                           placeholder="Acerca el tag o escanea manualmente" autofocus>
+                    <span class="input-group-text bg-transparent">🏷️</span>
+                    <input type="text" class="form-glass" id="rfidCode" placeholder="RFID-00000001" autofocus>
+                    <button class="btn btn-glass" id="btnConsultar">Consultar</button>
                 </div>
             </div>
-            <div class="mt-4">
-                <div class="btn-group">
-                    <button class="btn btn-glass" id="btnEntrada">
-                        <i class="fas fa-arrow-down"></i> Registrar Entrada
-                    </button>
-                    <button class="btn btn-glass" id="btnSalida">
-                        <i class="fas fa-arrow-up"></i> Registrar Salida
-                    </button>
-                </div>
+            <div id="infoRollo">
+                <p class="text-muted text-center py-3">Ingresa un código y presiona "Consultar".</p>
+            </div>
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-glass flex-grow-1" id="btnEntrada" disabled>
+                    <i class="fas fa-arrow-down"></i> Registrar Entrada (Compra)
+                </button>
+                <button class="btn btn-glass flex-grow-1" id="btnSalida" disabled>
+                    <i class="fas fa-arrow-up"></i> Registrar Salida (Venta)
+                </button>
             </div>
         </div>
     </div>
-    
     <div class="col-md-6">
         <div class="glass-soft p-4">
-            <h5><i class="fas fa-info-circle text-info"></i> Información del Rollo</h5>
-            <div id="infoRollo" class="mt-3">
-                <p class="text-muted text-center">Esperando lectura...</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Historial de lecturas recientes -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="glass-soft p-4">
-            <h5><i class="fas fa-history text-info"></i> Lecturas Recientes</h5>
-            <div class="table-responsive">
-                <table class="table table-glass" id="tablaLecturas">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Código RFID</th>
-                            <th>Tela</th>
-                            <th>Acción</th>
-                            <th>Metros</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoLecturas">
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">No hay lecturas recientes</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h5><i class="fas fa-history text-info"></i> Últimas consultas</h5>
+            <ul class="list-group mt-2" id="historialList" style="max-height: 350px; overflow-y: auto;">
+                <li class="list-group-item bg-transparent text-muted text-center">No hay consultas recientes</li>
+            </ul>
         </div>
     </div>
 </div>
 
 <script>
-// Historial de lecturas
-let lecturas = [];
-
-// Elementos DOM
-const rfidInput = document.getElementById('rfidInput');
-const infoRollo = document.getElementById('infoRollo');
+let ultimoRollo = null;
+const rfidInput = document.getElementById('rfidCode');
+const btnConsultar = document.getElementById('btnConsultar');
 const btnEntrada = document.getElementById('btnEntrada');
 const btnSalida = document.getElementById('btnSalida');
-const estadoLector = document.getElementById('estadoLector');
-const cuerpoLecturas = document.getElementById('cuerpoLecturas');
+const infoDiv = document.getElementById('infoRollo');
+const historialList = document.getElementById('historialList');
 
-// Variable para almacenar el último rollo leído
-let ultimoRollo = null;
-
-// Función para agregar lectura al historial
-function agregarLectura(codigo_rfid, nombre_tela, accion, metros = null) {
-    lecturas.unshift({
-        fecha: new Date().toLocaleString(),
-        codigo_rfid: codigo_rfid,
-        nombre_tela: nombre_tela,
-        accion: accion,
-        metros: metros
-    });
-    
-    if (lecturas.length > 20) lecturas.pop();
-    actualizarHistorial();
+function agregarHistorial(codigo, nombre) {
+    const li = document.createElement('li');
+    li.className = 'list-group-item bg-transparent text-muted';
+    li.innerHTML = `<code>${codigo}</code> – ${nombre} – ${new Date().toLocaleTimeString()}`;
+    historialList.prepend(li);
+    if (historialList.children.length > 10) historialList.removeChild(historialList.lastChild);
 }
 
-function actualizarHistorial() {
-    if (lecturas.length === 0) {
-        cuerpoLecturas.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay lecturas recientes</td></tr>';
-        return;
-    }
-    
-    let html = '';
-    lecturas.forEach(lec => {
-        html += `
-            <tr>
-                <td>${lec.fecha}</td>
-                <td><code>${lec.codigo_rfid}</code></td>
-                <td>${lec.nombre_tela}</td>
-                <td>
-                    ${lec.accion === 'entrada' ? 
-                        '<span class="badge bg-success">Entrada</span>' : 
-                        '<span class="badge bg-warning">Salida</span>'}
-                </td>
-                <td>${lec.metros ? lec.metros + ' m' : '-'}</td>
-            </tr>
-        `;
-    });
-    cuerpoLecturas.innerHTML = html;
-}
-
-// Función para consultar rollo por RFID
-function consultarRollo(codigo_rfid) {
-    estadoLector.innerHTML = '🟡 Consultando...';
-    
-    fetch('/api/lectura-rfid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codigo_rfid: codigo_rfid, tipo: 'consulta' })
-    })
-    .then(response => response.json())
-    .then(data => {
+async function consultarRollo(codigo) {
+    infoDiv.innerHTML = '<p class="text-muted text-center">Consultando...</p>';
+    try {
+        const resp = await fetch('/api/lectura-rfid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo_rfid: codigo })
+        });
+        const data = await resp.json();
         if (data.status === 'success') {
             ultimoRollo = data.data;
-            infoRollo.innerHTML = `
+            infoDiv.innerHTML = `
                 <div class="dashboard-card p-3">
-                    <div class="row">
-                        <div class="col-6"><strong>Tela:</strong></div>
-                        <div class="col-6">${data.data.nombre_tela}</div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-6"><strong>Metros disponibles:</strong></div>
-                        <div class="col-6">${data.data.metros_disponibles} m</div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-6"><strong>Precio por metro:</strong></div>
-                        <div class="col-6">$${data.data.precio_metro}</div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-6"><strong>ID Rollo:</strong></div>
-                        <div class="col-6">${data.data.id_rollo}</div>
-                    </div>
+                    <div><strong>🧵 Tela:</strong> ${ultimoRollo.nombre_tela}</div>
+                    <div><strong>📏 Metros disponibles:</strong> ${ultimoRollo.metros_disponibles} m</div>
+                    <div><strong>💰 Precio por metro:</strong> $${ultimoRollo.precio_metro}</div>
+                    <div><strong>🆔 ID Rollo:</strong> ${ultimoRollo.id_rollo}</div>
                 </div>
             `;
-            estadoLector.innerHTML = '🟢 Listo para registrar entrada/salida';
+            btnEntrada.disabled = false;
+            btnSalida.disabled = false;
+            agregarHistorial(codigo, ultimoRollo.nombre_tela);
         } else {
-            infoRollo.innerHTML = `<div class="alert alert-danger">❌ ${data.message}</div>`;
-            estadoLector.innerHTML = '🔴 Error: Rollo no encontrado';
+            infoDiv.innerHTML = `<div class="alert alert-danger">❌ ${data.message}</div>`;
+            btnEntrada.disabled = true;
+            btnSalida.disabled = true;
             ultimoRollo = null;
         }
-    })
-    .catch(error => {
-        infoRollo.innerHTML = `<div class="alert alert-danger">❌ Error de conexión</div>`;
-        estadoLector.innerHTML = '🔴 Error de conexión';
-    });
+    } catch (error) {
+        infoDiv.innerHTML = `<div class="alert alert-danger">❌ Error de conexión</div>`;
+        btnEntrada.disabled = true;
+        btnSalida.disabled = true;
+    }
 }
 
-// Evento de entrada manual o lector USB (actúa como teclado)
-let bufferRFID = '';
-let timeoutRFID;
-
-rfidInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const codigo = this.value.trim();
-        if (codigo) {
-            consultarRollo(codigo);
-        }
-        this.value = '';
-    }
+btnConsultar.onclick = () => {
+    const codigo = rfidInput.value.trim();
+    if (!codigo) return alert('Ingresa un código RFID');
+    consultarRollo(codigo);
+};
+rfidInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') btnConsultar.click();
 });
 
-// Simular lectura por teclado (lector USB)
-document.addEventListener('keypress', function(e) {
-    if (document.activeElement === rfidInput) return;
-    
-    bufferRFID += e.key;
-    clearTimeout(timeoutRFID);
-    
-    timeoutRFID = setTimeout(() => {
-        if (bufferRFID.length > 5) {
-            rfidInput.value = bufferRFID;
-            consultarRollo(bufferRFID);
-        }
-        bufferRFID = '';
-    }, 50);
-});
-
-// Registrar entrada
-btnEntrada.onclick = function() {
-    if (!ultimoRollo) {
-        alert('Primero acerque un tag RFID');
-        return;
-    }
-    
-    const metros = prompt('Ingrese metros que entran al inventario:', ultimoRollo.metros_disponibles);
+btnEntrada.onclick = () => {
+    if (!ultimoRollo) return;
+    let metros = prompt('Metros que ingresan (compra):', ultimoRollo.metros_disponibles);
     if (metros && parseFloat(metros) > 0) {
-        // Redirigir a compras con datos precargados
-        window.location.href = `/compras/nueva?rfid=${rfidInput.value}&metros=${metros}&precio=${ultimoRollo.precio_metro}`;
+        window.location.href = `/compras/nueva?rfid=${encodeURIComponent(rfidInput.value)}&metros=${metros}&precio=${ultimoRollo.precio_metro}&id_rollo=${ultimoRollo.id_rollo}`;
     }
 };
 
-// Registrar salida
-btnSalida.onclick = function() {
-    if (!ultimoRollo) {
-        alert('Primero acerque un tag RFID');
-        return;
-    }
-    
-    const metros = prompt('Ingrese metros a vender:', '1');
+btnSalida.onclick = () => {
+    if (!ultimoRollo) return;
+    let metros = prompt('Metros a vender:', '1');
     if (metros && parseFloat(metros) > 0) {
         if (parseFloat(metros) > ultimoRollo.metros_disponibles) {
             alert(`Solo hay ${ultimoRollo.metros_disponibles} metros disponibles`);
             return;
         }
-        
-        // Redirigir a ventas con datos precargados
-        window.location.href = `/ventas/nueva?rfid=${rfidInput.value}&metros=${metros}&precio=${ultimoRollo.precio_metro}&id_rollo=${ultimoRollo.id_rollo}`;
+        window.location.href = `/ventas/nueva?rfid=${encodeURIComponent(rfidInput.value)}&metros=${metros}&precio=${ultimoRollo.precio_metro}&id_rollo=${ultimoRollo.id_rollo}`;
     }
 };
 </script>

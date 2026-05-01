@@ -244,30 +244,21 @@ window.eliminarDetalle = function(index) {
 
 // Agregar rollo
 btnAgregar.onclick = function() {
-    const idTela = selectTela.value;
     const option = selectTela.options[selectTela.selectedIndex];
+    const idTela = selectTela.value;
     const nombreTela = option.getAttribute('data-nombre');
     const codigoTela = option.getAttribute('data-codigo');
     const idColor = selectColor.value;
     const nombreColor = selectColor.options[selectColor.selectedIndex]?.text;
     const cantidad = parseInt(cantidadRollos.value);
     const metros = parseFloat(metrosRollo.value);
-    
-    if (!idTela) {
-        alert('Seleccione una tela');
-        return;
-    }
-    
-    if (!metros || metros <= 0) {
-        alert('Ingrese metros por rollo válidos');
-        return;
-    }
-    
-    if (!cantidad || cantidad < 1) {
-        alert('Ingrese cantidad de rollos válida');
-        return;
-    }
-    
+    const precio = parseFloat(precioMetro.value);
+
+    if (!idTela) { alert('Seleccione una tela'); return; }
+    if (!metros || metros <= 0) { alert('Ingrese metros por rollo válidos'); return; }
+    if (!cantidad || cantidad < 1) { alert('Ingrese cantidad de rollos válida'); return; }
+    if (!precio || precio <= 0) { alert('Ingrese precio por metro'); return; }
+
     detalles.push({
         id_tela: parseInt(idTela),
         id_color: idColor ? parseInt(idColor) : null,
@@ -275,40 +266,30 @@ btnAgregar.onclick = function() {
         codigo_tela: codigoTela,
         nombre_color: nombreColor !== 'Sin color' ? nombreColor : null,
         cantidad_rollos: cantidad,
-        metros_rollo: metros
+        metros_rollo: metros,          // ← clave corregida
+        precio_metro: precio
     });
-    
+
     actualizarTabla();
-    
-    // Limpiar
     selectTela.value = '';
     selectColor.value = '';
     cantidadRollos.value = '1';
     metrosRollo.value = '';
+    // No limpiamos precioMetro para mantenerlo
 };
 
 // Finalizar compra
 btnFinalizar.onclick = function() {
-    if (detalles.length === 0) {
-        alert('Agregue al menos un rollo');
-        return;
-    }
-    
+    if (detalles.length === 0) { alert('Agregue al menos un rollo'); return; }
     const idProveedor = selectProveedor.value;
-    if (!idProveedor) {
-        alert('Seleccione un proveedor');
-        return;
-    }
-    
+    if (!idProveedor) { alert('Seleccione un proveedor'); return; }
+
     const precio = parseFloat(precioMetro.value);
-    if (!precio || precio <= 0) {
-        alert('Ingrese el precio por metro');
-        return;
-    }
-    
+    if (!precio || precio <= 0) { alert('Ingrese el precio por metro'); return; }
+
     const totalMetros = detalles.reduce((sum, d) => sum + (d.cantidad_rollos * d.metros_rollo), 0);
     const totalPagar = totalMetros * precio;
-    
+
     const datosCompra = {
         id_proveedor: parseInt(idProveedor),
         numero_factura: document.getElementById('numero_factura').value,
@@ -317,10 +298,9 @@ btnFinalizar.onclick = function() {
         total_metros: totalMetros,
         total_pagar: totalPagar
     };
-    
+
     document.getElementById('datosCompra').value = JSON.stringify(datosCompra);
     document.getElementById('detalles').value = JSON.stringify(detalles);
-    
     document.getElementById('compraForm').submit();
 };
 

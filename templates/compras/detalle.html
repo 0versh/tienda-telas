@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Compra #{{ compra.id_compra }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4 fade-in">
+    <div class="col">
+        <h1><i class="fas fa-file-invoice"></i> Detalle de Compra #{{ compra.id_compra }}</h1>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('compras.lista') }}" class="btn btn-glass">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="glass-soft p-4">
+            <h5 class="mb-3"><i class="fas fa-info-circle text-primary"></i> Información General</h5>
+            <table class="table table-borderless">
+                <tr>
+                    <th style="width: 40%;">Proveedor:</th>
+                    <td>{{ compra.nombre_proveedor }}</td>
+                </tr>
+                <tr>
+                    <th>Fecha:</th>
+                    <td>{{ compra.fecha_compra.strftime('%d/%m/%Y %H:%M') }}</td>
+                </tr>
+                <tr>
+                    <th>N° Factura:</th>
+                    <td>{{ compra.numero_factura or 'No registrada' }}</td>
+                </tr>
+                <tr>
+                    <th>Estado de Pago:</th>
+                    <td>
+                        {% if compra.estado_pago == 'pagado' %}
+                            <span class="badge bg-success">Pagado</span>
+                        {% elif compra.estado_pago == 'pendiente' %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% else %}
+                            <span class="badge bg-info">Parcial</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Observaciones:</th>
+                    <td>{{ compra.observaciones or 'Ninguna' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="glass-soft p-4">
+            <h5 class="mb-3"><i class="fas fa-calculator text-success"></i> Resumen</h5>
+            <table class="table table-borderless">
+                <tr>
+                    <th>Total Metros:</th>
+                    <td class="fw-bold">{{ "%.2f"|format(compra.total_metros) }} m</td>
+                </tr>
+                <tr>
+                    <th>Total Pagado:</th>
+                    <td class="fw-bold text-success">${{ "%.2f"|format(compra.total_pagar) }}</td>
+                </tr>
+                <tr>
+                    <th>Registrado por:</th>
+                    <td>{{ compra.nombre_usuario }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="glass-soft p-4">
+    <h5 class="mb-3"><i class="fas fa-list text-info"></i> Rollos Comprados</h5>
+    <div class="table-responsive">
+        <table class="table table-glass">
+            <thead>
+                <tr class="text-center">
+                    <th>Tela</th>
+                    <th>Color</th>
+                    <th>Cantidad Rollos</th>
+                    <th>Metros/Rollo</th>
+                    <th>Metros Totales</th>
+                    <th>Precio/m</th>
+                    <th>Subtotal</th>
+                </thead>
+            <tbody>
+                {% for detalle in compra.detalles %}
+                <tr class="text-center">
+                    <td>{{ detalle.nombre_tela }} <small>({{ detalle.codigo_tela }})</small></td>
+                    <td>{{ detalle.nombre_color or 'Sin color' }}</td>
+                    <td>{{ detalle.cantidad_rollos }}</td>
+                    <td>{{ "%.2f"|format(detalle.metros_por_rollo) }} m</td>
+                    <td>{{ "%.2f"|format(detalle.cantidad_rollos * detalle.metros_por_rollo) }} m</td>
+                    <td>${{ "%.2f"|format(detalle.precio_metro_compra) }}</td>
+                    <td>${{ "%.2f"|format(detalle.cantidad_rollos * detalle.metros_por_rollo * detalle.precio_metro_compra) }}</td>
+                 </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="5" class="text-end">Total:</td>
+                    <td>${{ "%.2f"|format(compra.total_pagar) }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+         </table>
+    </div>
+</div>
+{% endblock %}

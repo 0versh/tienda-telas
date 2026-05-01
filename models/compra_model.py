@@ -10,7 +10,6 @@ class CompraModel:
     
     @staticmethod
     def obtener_todas():
-        """Obtiene todas las compras"""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("""
@@ -27,11 +26,8 @@ class CompraModel:
 
     @staticmethod
     def obtener_por_id(id_compra):
-        """Obtiene una compra con sus detalles"""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        
-        # Obtener la compra
         cur.execute("""
             SELECT c.*, p.nombre_proveedor, u.nombre_usuario
             FROM compras_proveedor c
@@ -40,8 +36,6 @@ class CompraModel:
             WHERE c.id_compra = %s
         """, (id_compra,))
         compra = dict(cur.fetchone())
-        
-        # Obtener los detalles (rollos)
         cur.execute("""
             SELECT d.*, t.nombre_tela, t.codigo_tela, col.nombre_color
             FROM detalle_compras d
@@ -50,7 +44,6 @@ class CompraModel:
             WHERE d.id_compra = %s
         """, (id_compra,))
         detalles = [dict(row) for row in cur.fetchall()]
-        
         compra['detalles'] = detalles
         cur.close()
         conn.close()
@@ -58,12 +51,10 @@ class CompraModel:
 
     @staticmethod
     def crear_compra(datos_compra, detalles):
-        """Crea una nueva compra con sus rollos"""
         conn = get_db_connection()
         cur = conn.cursor()
-        
         try:
-            # Insertar la compra
+            # Insertar cabecera de compra
             cur.execute("""
                 INSERT INTO compras_proveedor (
                     id_proveedor, fecha_compra, numero_factura,
@@ -81,11 +72,10 @@ class CompraModel:
                 datos_compra['id_usuario'],
                 datos_compra.get('observaciones')
             ))
-            
             id_compra = cur.fetchone()[0]
-            
-            # Insertar cada detalle (rollo)
-            for detalle in detalles:
+
+            # Insertar cada detalle (rollos)
+            for det in detalles:
                 cur.execute("""
                     INSERT INTO detalle_compras (
                         id_compra, id_tela, id_color,
@@ -93,16 +83,14 @@ class CompraModel:
                     ) VALUES (%s, %s, %s, %s, %s, %s)
                 """, (
                     id_compra,
-                    detalle['id_tela'],
-                    detalle.get('id_color'),
-                    detalle['cantidad_rollos'],
-                    detalle['metros_por_rollo'],
-                    detalle['precio_metro']
+                    det['id_tela'],
+                    det.get('id_color'),
+                    det['cantidad_rollos'],
+                    det['metros_rollo'],   # ← clave esperada metros_rollo
+                    det['precio_metro']
                 ))
-            
             conn.commit()
             return id_compra
-            
         except Exception as e:
             conn.rollback()
             raise e
@@ -112,15 +100,9 @@ class CompraModel:
 
     @staticmethod
     def obtener_proveedores():
-        """Obtiene proveedores activos"""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("""
-            SELECT id_proveedor, nombre_proveedor 
-            FROM proveedores 
-            WHERE activo = true 
-            ORDER BY nombre_proveedor
-        """)
+        cur.execute("SELECT id_proveedor, nombre_proveedor FROM proveedores WHERE activo = true ORDER BY nombre_proveedor")
         resultados = [dict(row) for row in cur.fetchall()]
         cur.close()
         conn.close()
@@ -128,26 +110,20 @@ class CompraModel:
 
     @staticmethod
     def obtener_telas():
-        """Obtiene telas activas"""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("""
-            SELECT t.id_tela, t.codigo_tela, t.nombre_tela, 
-                   tp.nombre_tipo, p.nombre_proveedor
+            SELECT t.id_tela, t.codigo_tela, t.nombre_tela, tp.nombre_tipo, p.nombre_proveedor
             FROM telas t
             JOIN tipos_de_tela tp ON t.id_tipo = tp.id_tipo
             JOIN proveedores p ON t.id_proveedor = p.id_proveedor
             WHERE t.activo = true
             ORDER BY t.nombre_tela
         """)
-        resultados = [dict(row) for row in cur.fetchall()]
-        cur.close()
-        conn.close()
-        return resultados
+        return [dict(row) for row in cur.fetchall()]
 
     @staticmethod
     def obtener_colores():
-        """Obtiene colores disponibles"""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT id_color, nombre_color FROM colores ORDER BY nombre_color")
